@@ -47,6 +47,7 @@ func CalcStats(bodyChan chan *Body, duration int64,numConnections int,numParalle
 		stats.Sum += float64(res.Duration)
 		stats.Times[i] = int(res.Duration)
 		i++
+		stats.TransferedRequest += res.RequestSize
 		stats.TransferedResponse += res.ResponseSize
 		if res.Error {
 			stats.Errors++
