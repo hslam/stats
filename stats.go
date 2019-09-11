@@ -121,29 +121,29 @@ type StatsResult struct {
 }
 func PrintStatsResult(statsResult *StatsResult) {
 	fmt.Println("==========================BENCHMARK==========================")
-	fmt.Printf("Used Connections:\t\t%d\n", statsResult.Connections)
-	fmt.Printf("Used Parallel Calls:\t\t%d\n", statsResult.Parallels)
-	fmt.Printf("Total Number Of Calls:\t\t%d\n\n", statsResult.TotalCalls)
+	fmt.Printf("Used Connections:\t\t\t%d\n", statsResult.Connections)
+	fmt.Printf("Concurrent Calls Per Connection:\t%d\n", statsResult.Parallels)
+	fmt.Printf("Total Number Of Calls:\t\t\t%d\n\n", statsResult.TotalCalls)
 	fmt.Println("===========================TIMINGS===========================")
-	fmt.Printf("Total time passed:\t\t%.2fs\n", statsResult.TotalTimePassed)
-	fmt.Printf("Avg time per request:\t\t%.2fms\n", statsResult.AvgTimePerRequest)
-	fmt.Printf("Requests per second:\t\t%.2f\n", statsResult.RequestsPerSecond)
-	fmt.Printf("Median time per request:\t%.2fms\n", statsResult.MedianTimePerRequest)
-	fmt.Printf("99th percentile time:\t\t%.2fms\n", statsResult.N99thPercentileTime)
-	fmt.Printf("Slowest time for request:\t%.2fms\n\n", statsResult.SlowestTimeForRequest)
+	fmt.Printf("Total time passed:\t\t\t%.2fs\n", statsResult.TotalTimePassed)
+	fmt.Printf("Avg time per request:\t\t\t%.2fms\n", statsResult.AvgTimePerRequest)
+	fmt.Printf("Requests per second:\t\t\t%.2f\n", statsResult.RequestsPerSecond)
+	fmt.Printf("Median time per request:\t\t%.2fms\n", statsResult.MedianTimePerRequest)
+	fmt.Printf("99th percentile time:\t\t\t%.2fms\n", statsResult.N99thPercentileTime)
+	fmt.Printf("Slowest time for request:\t\t%.2fms\n\n", statsResult.SlowestTimeForRequest)
 	if statsResult.TotalRequestBodySizes>0{
 		fmt.Println("=========================REQUESTDATA=========================")
 		fmt.Printf("Total request body sizes:\t\t%d\n", statsResult.TotalRequestBodySizes)
 		fmt.Printf("Avg body size per request:\t\t%.2f Byte\n", statsResult.AvgBodySizePerRequest)
-		fmt.Printf("Transfer request rate per second:\t\t%.2f Byte/s (%.2f MByte/s)\n", statsResult.TransferRequestRateBytePerSecond,statsResult.TransferRequestRateMBytePerSecond)
+		fmt.Printf("Transfer request rate per second:\t%.2f Byte/s (%.2f MByte/s)\n\n", statsResult.TransferRequestRateBytePerSecond,statsResult.TransferRequestRateMBytePerSecond)
 	}
 	if statsResult.TotalResponseBodySizes>0{
 		fmt.Println("=========================RESPONSEDATA========================")
 		fmt.Printf("Total response body sizes:\t\t%d\n", statsResult.TotalResponseBodySizes)
 		fmt.Printf("Avg body size per response:\t\t%.2f Byte\n", statsResult.AvgBodySizePerResponse)
-		fmt.Printf("Transfer response rate per second:\t\t%.2f Byte/s (%.2f MByte/s)\n", statsResult.TransferResponseRateBytePerSecond,statsResult.TransferResponseRateMBytePerSecond)
+		fmt.Printf("Transfer response rate per second:\t%.2f Byte/s (%.2f MByte/s)\n\n", statsResult.TransferResponseRateBytePerSecond,statsResult.TransferResponseRateMBytePerSecond)
 	}
 	fmt.Println("==========================RESPONSES==========================")
-	fmt.Printf("ResponseOk:\t\t\t%d (%.2f%%)\n", statsResult.ResponseOk, statsResult.ResponseOkPercentile)
-	fmt.Printf("Errors:\t\t\t\t%d (%.2f%%)\n", statsResult.Errors, statsResult.ErrorsPercentile)
+	fmt.Printf("ResponseOk:\t\t\t\t%d (%.2f%%)\n", statsResult.ResponseOk, statsResult.ResponseOkPercentile)
+	fmt.Printf("Errors:\t\t\t\t\t%d (%.2f%%)\n", statsResult.Errors, statsResult.ErrorsPercentile)
 }
