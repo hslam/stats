@@ -73,8 +73,8 @@ func CalcStatsResult(allStats *Stats) *StatsResult{
 	statsResult.TotalTimePassed=allStats.AvgDuration/1E6
 	statsResult.AvgTimePerRequest=allStats.Sum/total/1000
 	statsResult.RequestsPerSecond=total/(allStats.AvgDuration/1E6)
-	statsResult.MedianTimePerRequest=float64(allStats.Times[(totalInt-1)/2])/1000
-	statsResult.N99thPercentileTime=float64(allStats.Times[(totalInt/100*99)])/1000
+	statsResult.MedianTimePerRequest=float64(allStats.Times[totalInt/2-1])/1000
+	statsResult.N99thPercentileTime=float64(allStats.Times[totalInt/100*99-1])/1000
 	statsResult.SlowestTimeForRequest=float64(allStats.Times[totalInt-1])/1000
 	statsResult.ResponseOk=allStats.ResponseOk
 	statsResult.ResponseOkPercentile=float64(allStats.ResponseOk)/total*1e2
