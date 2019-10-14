@@ -3,6 +3,7 @@ package stats
 import (
 	"fmt"
 	"sort"
+	"math"
 )
 var Log =true
 
@@ -71,10 +72,12 @@ func CalcStatsResult(allStats *Stats) *StatsResult{
 	statsResult.Parallels=allStats.Parallels
 	statsResult.TotalCalls=totalInt
 	statsResult.TotalTimePassed=allStats.AvgDuration/1E6
-	statsResult.AvgTimePerRequest=allStats.Sum/total/1000
 	statsResult.RequestsPerSecond=total/(allStats.AvgDuration/1E6)
+	statsResult.AvgTimePerRequest=allStats.Sum/total/1000
 	statsResult.MedianTimePerRequest=float64(allStats.Times[totalInt/2-1])/1000
-	statsResult.N99thPercentileTime=float64(allStats.Times[totalInt/100*99-1])/1000
+	statsResult.N9thPercentileTime=float64(allStats.Times[int(math.Ceil(total/10*9))-1])/1000
+	statsResult.N99thPercentileTime=float64(allStats.Times[int(math.Ceil(total/100*99))-1])/1000
+	statsResult.N999thPercentileTime=float64(allStats.Times[int(math.Ceil(total/1000*999))-1])/1000
 	statsResult.SlowestTimeForRequest=float64(allStats.Times[totalInt-1])/1000
 	statsResult.ResponseOk=allStats.ResponseOk
 	statsResult.ResponseOkPercentile=float64(allStats.ResponseOk)/total*1e2
@@ -101,10 +104,12 @@ type StatsResult struct {
 	Parallels     			int
 	TotalCalls				int64
 	TotalTimePassed			float64
-	AvgTimePerRequest		float64
 	RequestsPerSecond 		float64
+	AvgTimePerRequest		float64
 	MedianTimePerRequest	float64
+	N9thPercentileTime		float64
 	N99thPercentileTime		float64
+	N999thPercentileTime	float64
 	SlowestTimeForRequest 	float64
 	TotalRequestBodySizes  int64
 	AvgBodySizePerRequest  float64
@@ -126,10 +131,12 @@ func PrintStatsResult(statsResult *StatsResult) {
 	fmt.Printf("Total Number Of Calls:\t\t\t%d\n\n", statsResult.TotalCalls)
 	fmt.Println("===========================TIMINGS===========================")
 	fmt.Printf("Total time passed:\t\t\t%.2fs\n", statsResult.TotalTimePassed)
-	fmt.Printf("Avg time per request:\t\t\t%.2fms\n", statsResult.AvgTimePerRequest)
 	fmt.Printf("Requests per second:\t\t\t%.2f\n", statsResult.RequestsPerSecond)
+	fmt.Printf("Avg time per request:\t\t\t%.2fms\n", statsResult.AvgTimePerRequest)
 	fmt.Printf("Median time per request:\t\t%.2fms\n", statsResult.MedianTimePerRequest)
+	fmt.Printf("9th percentile time:\t\t\t%.2fms\n", statsResult.N9thPercentileTime)
 	fmt.Printf("99th percentile time:\t\t\t%.2fms\n", statsResult.N99thPercentileTime)
+	fmt.Printf("999th percentile time:\t\t\t%.2fms\n", statsResult.N999thPercentileTime)
 	fmt.Printf("Slowest time for request:\t\t%.2fms\n\n", statsResult.SlowestTimeForRequest)
 	if statsResult.TotalRequestBodySizes>0{
 		fmt.Println("=========================REQUESTDATA=========================")
