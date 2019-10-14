@@ -73,6 +73,7 @@ func CalcStatsResult(allStats *Stats) *StatsResult{
 	statsResult.TotalCalls=totalInt
 	statsResult.TotalTimePassed=allStats.AvgDuration/1E6
 	statsResult.RequestsPerSecond=total/(allStats.AvgDuration/1E6)
+	statsResult.FastestTimeForRequest=float64(allStats.Times[0])/1000
 	statsResult.AvgTimePerRequest=allStats.Sum/total/1000
 	statsResult.MedianTimePerRequest=float64(allStats.Times[totalInt/2-1])/1000
 	statsResult.N9thPercentileTime=float64(allStats.Times[int(math.Ceil(total/10*9))-1])/1000
@@ -105,6 +106,7 @@ type StatsResult struct {
 	TotalCalls				int64
 	TotalTimePassed			float64
 	RequestsPerSecond 		float64
+	FastestTimeForRequest 	float64
 	AvgTimePerRequest		float64
 	MedianTimePerRequest	float64
 	N9thPercentileTime		float64
@@ -132,6 +134,7 @@ func PrintStatsResult(statsResult *StatsResult) {
 	fmt.Println("===========================TIMINGS===========================")
 	fmt.Printf("Total time passed:\t\t\t%.2fs\n", statsResult.TotalTimePassed)
 	fmt.Printf("Requests per second:\t\t\t%.2f\n", statsResult.RequestsPerSecond)
+	fmt.Printf("Fastest time for request:\t\t%.2fms\n", statsResult.FastestTimeForRequest)
 	fmt.Printf("Avg time per request:\t\t\t%.2fms\n", statsResult.AvgTimePerRequest)
 	fmt.Printf("Median time per request:\t\t%.2fms\n", statsResult.MedianTimePerRequest)
 	fmt.Printf("9th percentile time:\t\t\t%.2fms\n", statsResult.N9thPercentileTime)
