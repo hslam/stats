@@ -137,9 +137,9 @@ func PrintStatsResult(statsResult *StatsResult) {
 	fmt.Printf("Fastest time for request:\t\t%.2fms\n", statsResult.FastestTimeForRequest)
 	fmt.Printf("Avg time per request:\t\t\t%.2fms\n", statsResult.AvgTimePerRequest)
 	fmt.Printf("Median time per request:\t\t%.2fms\n", statsResult.MedianTimePerRequest)
-	fmt.Printf("9th percentile time:\t\t\t%.2fms\n", statsResult.N9thPercentileTime)
-	fmt.Printf("99th percentile time:\t\t\t%.2fms\n", statsResult.N99thPercentileTime)
-	fmt.Printf("999th percentile time:\t\t\t%.2fms\n", statsResult.N999thPercentileTime)
+	fmt.Printf("90%% time:\t\t\t\t\t\t%.2fms\n", statsResult.N9thPercentileTime)
+	fmt.Printf("99%% time:\t\t\t\t\t\t%.2fms\n", statsResult.N99thPercentileTime)
+	fmt.Printf("99.9%% time:\t\t\t\t\t\t%.2fms\n", statsResult.N999thPercentileTime)
 	fmt.Printf("Slowest time for request:\t\t%.2fms\n\n", statsResult.SlowestTimeForRequest)
 	if statsResult.TotalRequestBodySizes>0{
 		fmt.Println("=========================REQUESTDATA=========================")
