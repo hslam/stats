@@ -1,5 +1,5 @@
 # stats
-## benchmark test
+benchmark test
 
 
 ## Get started
