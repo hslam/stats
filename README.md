@@ -1,6 +1,5 @@
 # stats
-benchmark test
-
+Stats is written in Golang using for benchmark
 
 ## Get started
 
