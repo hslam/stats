@@ -1,19 +1,35 @@
+# stats
+## benchmark test
+
+
+## Get started
+
+### Install
 ```
-type WrkClient struct {
+go get hslam.com/git/x/stats
+```
+### Import
+```
+import "hslam.com/git/x/stats"
+```
+
+### example
+```
+type Client struct {
 }
 
-func (c *WrkClient)Call()(int64,int64,bool){
+func (c *Client)Call()(int64,int64,bool){
     //To Do
 	//return 1024,0,false
     return 1024,1024,true
 }
-```
 
-```
-	var wrkClients []stats.Client
+func example(){
+    var Clients []stats.Client
 	parallel:=1
 	total_calls:=1000000
-	wrkClients[0]= &WrkClient{}
-	stats.Start(parallel,total_calls,wrkClients)
+	Clients[0]= &Client{}
+	stats.StartPrint(parallel,total_calls,Clients)
+}
 ```
 
