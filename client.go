@@ -10,20 +10,11 @@ type Client interface {
 	Call()(RequestSize int64,ResponseSize int64,ok bool)
 }
 
-func getStr(n int,char string) (s string) {
-	if n<1{
-		return
-	}
-	for i:=1;i<=n;i++{
-		s+=char
-	}
-	return
-}
-
 func StartPrint(parallels int,totalCalls int, clients []Client){
 	result:=Start(parallels,totalCalls,clients)
 	fmt.Println(result.Format())
 }
+
 func Start(parallels int,totalCalls int, clients []Client)*StatsResult{
 	bodyChan := make(chan *Body, totalCalls)
 	startTime := time.Now()
@@ -57,6 +48,7 @@ func Start(parallels int,totalCalls int, clients []Client)*StatsResult{
 	<-stats.finish
 	return stats.Result()
 }
+
 func startClient(bodyChan chan *Body, waitGroup *sync.WaitGroup, numParallels int,count *Count,totalCalls int,c Client) {
 	defer waitGroup.Done()
 	wg := &sync.WaitGroup{}
@@ -82,4 +74,15 @@ func run (bodyChan chan *Body,waitGroup *sync.WaitGroup,count *Count, totalCalls
 		body.Time = time.Now().Sub(startTime).Nanoseconds()/1000
 		bodyChan <- body
 	}
+}
+
+
+func getStr(n int,char string) (s string) {
+	if n<1{
+		return
+	}
+	for i:=1;i<=n;i++{
+		s+=char
+	}
+	return
 }
