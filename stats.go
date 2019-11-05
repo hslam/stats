@@ -25,6 +25,41 @@ type Stats struct {
 	ResponseOk			int64
 	Errors				int64
 }
+
+type StatsResult struct {
+	Conns 					int
+	Parallels     			int
+	TotalCalls				int64
+	TotalTime				float64
+	RequestsPerSecond 		float64
+	AverageTimePerRequest		float64
+	FastestTimeForRequest 	float64
+	N001thThousandthTime		float64
+	N010thThousandthTime		float64
+	N050thThousandthTime		float64
+	N100thThousandthTime		float64
+	N250thThousandthTime		float64
+	N500thThousandthTime		float64
+	N750thThousandthTime		float64
+	N900thThousandthTime		float64
+	N950thThousandthTime		float64
+	N990thThousandthTime		float64
+	N999thThousandthTime	float64
+	SlowestTimeForRequest 	float64
+	TotalRequestBodySizes  int64
+	AverageBodySizePerRequest  float64
+	RequestRateBytePerSecond  float64
+	RequestRateMBytePerSecond  float64
+	TotalResponseBodySizes  int64
+	AverageBodySizePerResponse  float64
+	ResponseRateBytePerSecond  float64
+	ResponseRateMBytePerSecond  float64
+	ResponseOk				int64
+	ResponseOkPercentile	float64
+	Errors      			int64
+	ErrorsPercentile		float64
+}
+
 func newStats(bodyChan chan *Body,conns int,parallels int,totalCalls int)*Stats{
 	stats := &Stats{
 		finish:			make(chan bool,1),
@@ -37,9 +72,11 @@ func newStats(bodyChan chan *Body,conns int,parallels int,totalCalls int)*Stats{
 	go stats.run()
 	return stats
 }
+
 func (stats *Stats)SetTime(time int64){
 	stats.Time=float64(time)
 }
+
 func (stats *Stats)run(){
 	i := 0
 	for res := range stats.bodyChan {
@@ -59,6 +96,7 @@ func (stats *Stats)run(){
 	}
 	stats.finish<-true
 }
+
 func (stats *Stats)Result()*StatsResult{
 	sort.Ints(stats.Times)
 	total := float64(len(stats.Times))
@@ -103,75 +141,45 @@ func (stats *Stats)Result()*StatsResult{
 	}
 	return statsResult
 }
-type StatsResult struct {
-	Conns 					int
-	Parallels     			int
-	TotalCalls				int64
-	TotalTime				float64
-	RequestsPerSecond 		float64
-	AverageTimePerRequest		float64
-	FastestTimeForRequest 	float64
-	N001thThousandthTime		float64
-	N010thThousandthTime		float64
-	N050thThousandthTime		float64
-	N100thThousandthTime		float64
-	N250thThousandthTime		float64
-	N500thThousandthTime		float64
-	N750thThousandthTime		float64
-	N900thThousandthTime		float64
-	N950thThousandthTime		float64
-	N990thThousandthTime		float64
-	N999thThousandthTime	float64
-	SlowestTimeForRequest 	float64
-	TotalRequestBodySizes  int64
-	AverageBodySizePerRequest  float64
-	RequestRateBytePerSecond  float64
-	RequestRateMBytePerSecond  float64
-	TotalResponseBodySizes  int64
-	AverageBodySizePerResponse  float64
-	ResponseRateBytePerSecond  float64
-	ResponseRateMBytePerSecond  float64
-	ResponseOk				int64
-	ResponseOkPercentile	float64
-	Errors      			int64
-	ErrorsPercentile		float64
-}
-func (statsResult *StatsResult)Format() {
-	fmt.Println("Summary:")
-	fmt.Printf("\tConns:%d\n", statsResult.Conns)
-	fmt.Printf("\tParallels:%d\n", statsResult.Parallels)
-	fmt.Printf("\tTotal Calls:%d\n", statsResult.TotalCalls)
-	fmt.Printf("\tTotal time:%.2fs\n", statsResult.TotalTime)
-	fmt.Printf("\tRequests per second:%.2f\n", statsResult.RequestsPerSecond)
-	fmt.Printf("\tFastest time for request:%.2fms\n", statsResult.FastestTimeForRequest)
-	fmt.Printf("\tAverage time per request:%.2fms\n", statsResult.AverageTimePerRequest)
-	fmt.Printf("\tSlowest time for request:%.2fms\n\n", statsResult.SlowestTimeForRequest)
-	fmt.Println("Time:")
-	fmt.Printf("\t0.1%%\ttime for request:%.2fms\n", statsResult.N001thThousandthTime)
-	fmt.Printf("\t1%%\t\ttime for request:%.2fms\n", statsResult.N010thThousandthTime)
-	fmt.Printf("\t5%%\t\ttime for request:%.2fms\n", statsResult.N050thThousandthTime)
-	fmt.Printf("\t10%%\t\ttime for request:%.2fms\n", statsResult.N100thThousandthTime)
-	fmt.Printf("\t25%%\t\ttime for request:%.2fms\n", statsResult.N250thThousandthTime)
-	fmt.Printf("\t50%%\t\ttime for request:%.2fms\n", statsResult.N500thThousandthTime)
-	fmt.Printf("\t75%%\t\ttime for request:%.2fms\n", statsResult.N750thThousandthTime)
-	fmt.Printf("\t90%%\t\ttime for request:%.2fms\n", statsResult.N900thThousandthTime)
-	fmt.Printf("\t95%%\t\ttime for request:%.2fms\n", statsResult.N950thThousandthTime)
-	fmt.Printf("\t99%%\t\ttime for request:%.2fms\n", statsResult.N990thThousandthTime)
-	fmt.Printf("\t99.9%%\ttime for request:%.2fms\n\n", statsResult.N999thThousandthTime)
+
+func (statsResult *StatsResult)Format()string{
+	format:=""
+	format+=fmt.Sprintln("Summary:")
+	format+=fmt.Sprintf("\tConns:\t%d\n", statsResult.Conns)
+	format+=fmt.Sprintf("\tParallels:\t%d\n", statsResult.Parallels)
+	format+=fmt.Sprintf("\tTotal Calls:\t%d\n", statsResult.TotalCalls)
+	format+=fmt.Sprintf("\tTotal time:\t%.2fs\n", statsResult.TotalTime)
+	format+=fmt.Sprintf("\tRequests per second:\t%.2f\n", statsResult.RequestsPerSecond)
+	format+=fmt.Sprintf("\tFastest time for request:\t%.2fms\n", statsResult.FastestTimeForRequest)
+	format+=fmt.Sprintf("\tAverage time per request:\t%.2fms\n", statsResult.AverageTimePerRequest)
+	format+=fmt.Sprintf("\tSlowest time for request:\t%.2fms\n\n", statsResult.SlowestTimeForRequest)
+	format+=fmt.Sprintln("Time:")
+	format+=fmt.Sprintf("\t0.1%%\ttime for request:\t%.2fms\n", statsResult.N001thThousandthTime)
+	format+=fmt.Sprintf("\t1%%\ttime for request:\t%.2fms\n", statsResult.N010thThousandthTime)
+	format+=fmt.Sprintf("\t5%%\ttime for request:\t%.2fms\n", statsResult.N050thThousandthTime)
+	format+=fmt.Sprintf("\t10%%\ttime for request:\t%.2fms\n", statsResult.N100thThousandthTime)
+	format+=fmt.Sprintf("\t25%%\ttime for request:\t%.2fms\n", statsResult.N250thThousandthTime)
+	format+=fmt.Sprintf("\t50%%\ttime for request:\t%.2fms\n", statsResult.N500thThousandthTime)
+	format+=fmt.Sprintf("\t75%%\ttime for request:\t%.2fms\n", statsResult.N750thThousandthTime)
+	format+=fmt.Sprintf("\t90%%\ttime for request:\t%.2fms\n", statsResult.N900thThousandthTime)
+	format+=fmt.Sprintf("\t95%%\ttime for request:\t%.2fms\n", statsResult.N950thThousandthTime)
+	format+=fmt.Sprintf("\t99%%\ttime for request:\t%.2fms\n", statsResult.N990thThousandthTime)
+	format+=fmt.Sprintf("\t99.9%%\ttime for request:\t%.2fms\n\n", statsResult.N999thThousandthTime)
 	if statsResult.TotalRequestBodySizes>0{
-		fmt.Println("Request:")
-		fmt.Printf("\tTotal request body sizes:%d\n", statsResult.TotalRequestBodySizes)
-		fmt.Printf("\tAverage body size per request:%.2f Byte\n", statsResult.AverageBodySizePerRequest)
-		fmt.Printf("\tRequest rate per second:%.2f Byte/s (%.2f MByte/s)\n\n", statsResult.RequestRateBytePerSecond,statsResult.RequestRateMBytePerSecond)
+		format+=fmt.Sprintln("Request:")
+		format+=fmt.Sprintf("\tTotal request body sizes:\t%d\n", statsResult.TotalRequestBodySizes)
+		format+=fmt.Sprintf("\tAverage body size per request:\t%.2f Byte\n", statsResult.AverageBodySizePerRequest)
+		format+=fmt.Sprintf("\tRequest rate per second:\t%.2f Byte/s (%.2f MByte/s)\n\n", statsResult.RequestRateBytePerSecond,statsResult.RequestRateMBytePerSecond)
 	}
 
 	if statsResult.TotalResponseBodySizes>0{
-		fmt.Println("Response:")
-		fmt.Printf("\tTotal response body sizes:%d\n", statsResult.TotalResponseBodySizes)
-		fmt.Printf("\tAverage body size per response:%.2f Byte\n", statsResult.AverageBodySizePerResponse)
-		fmt.Printf("\tResponse rate per second:%.2f Byte/s (%.2f MByte/s)\n\n", statsResult.ResponseRateBytePerSecond,statsResult.ResponseRateMBytePerSecond)
+		format+=fmt.Sprintln("Response:")
+		format+=fmt.Sprintf("\tTotal response body sizes:\t%d\n", statsResult.TotalResponseBodySizes)
+		format+=fmt.Sprintf("\tAverage body size per response:\t%.2f Byte\n", statsResult.AverageBodySizePerResponse)
+		format+=fmt.Sprintf("\tResponse rate per second:\t%.2f Byte/s (%.2f MByte/s)\n\n", statsResult.ResponseRateBytePerSecond,statsResult.ResponseRateMBytePerSecond)
 	}
-	fmt.Println("Result:")
-	fmt.Printf("\tResponseOk:%d (%.2f%%)\n", statsResult.ResponseOk, statsResult.ResponseOkPercentile)
-	fmt.Printf("\tErrors:%d (%.2f%%)\n", statsResult.Errors, statsResult.ErrorsPercentile)
+	format+=fmt.Sprintln("Result:")
+	format+=fmt.Sprintf("\tResponseOk:\t%d (%.2f%%)\n", statsResult.ResponseOk, statsResult.ResponseOkPercentile)
+	format+=fmt.Sprintf("\tErrors\t:%d (%.2f%%)\n", statsResult.Errors, statsResult.ErrorsPercentile)
+	return format
 }

@@ -20,7 +20,11 @@ func getStr(n int,char string) (s string) {
 	return
 }
 
-func Start(parallels int,totalCalls int, clients []Client) {
+func StartPrint(parallels int,totalCalls int, clients []Client){
+	result:=Start(parallels,totalCalls,clients)
+	fmt.Println(result.Format())
+}
+func Start(parallels int,totalCalls int, clients []Client)*StatsResult{
 	bodyChan := make(chan *Body, totalCalls)
 	startTime := time.Now()
 	wg := &sync.WaitGroup{}
@@ -38,21 +42,20 @@ func Start(parallels int,totalCalls int, clients []Client) {
 				if len(bodyChan) >= totalCalls||stopLog{
 					break
 				}
-				i:=len(bodyChan)*100/totalCalls
+				i:=int(count.load())*100/totalCalls
 				fmt.Fprintf(os.Stdout, "%d%% [%s]\r",i,getStr(i,"#") + getStr(100-i," "))
 				time.Sleep(time.Millisecond * 100)
 			}
 		}()
 	}
 	wg.Wait()
+	stats.SetTime(time.Now().Sub(startTime).Nanoseconds()/1000)
 	stopLog=true
 	if Log{
 		fmt.Fprintf(os.Stdout, "%s\r",getStr(106," "))
 	}
-	stats.SetTime(time.Now().Sub(startTime).Nanoseconds()/1000)
 	<-stats.finish
-	statsResult:=stats.Result()
-	statsResult.Format()
+	return stats.Result()
 }
 func startClient(bodyChan chan *Body, waitGroup *sync.WaitGroup, numParallels int,count *Count,totalCalls int,c Client) {
 	defer waitGroup.Done()
