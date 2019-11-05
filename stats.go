@@ -79,17 +79,18 @@ func (stats *Stats)SetTime(time int64){
 
 func (stats *Stats)run(){
 	i := 0
-	for res := range stats.bodyChan {
-		stats.Times[i] = int(res.Time)
+	for body := range stats.bodyChan {
+		stats.Times[i] = int(body.Time)
 		i++
-		stats.TotalTime += float64(res.Time)
-		stats.TotalRequestSize += res.RequestSize
-		stats.TotalResponseSize += res.ResponseSize
-		if res.Error {
+		stats.TotalTime += float64(body.Time)
+		stats.TotalRequestSize += body.RequestSize
+		stats.TotalResponseSize += body.ResponseSize
+		if body.Error {
 			stats.Errors++
 		}else {
 			stats.ResponseOk++
 		}
+		bodyPool.Put(body)
 		if i==stats.totalCalls{
 			break
 		}
@@ -180,6 +181,6 @@ func (statsResult *StatsResult)Format()string{
 	}
 	format+=fmt.Sprintln("Result:")
 	format+=fmt.Sprintf("\tResponseOk:\t%d (%.2f%%)\n", statsResult.ResponseOk, statsResult.ResponseOkPercentile)
-	format+=fmt.Sprintf("\tErrors\t:%d (%.2f%%)\n", statsResult.Errors, statsResult.ErrorsPercentile)
+	format+=fmt.Sprintf("\tErrors:\t%d (%.2f%%)\n", statsResult.Errors, statsResult.ErrorsPercentile)
 	return format
 }

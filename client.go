@@ -34,7 +34,7 @@ func Start(parallels int,totalCalls int, clients []Client)*StatsResult{
 					break
 				}
 				i:=int(count.load())*100/totalCalls
-				fmt.Fprintf(os.Stdout, "%d%% [%s]\r",i,getStr(i,"#") + getStr(100-i," "))
+				fmt.Fprintf(os.Stdout, "%d%% [%s] %d\r",i,getStr(i,"#") + getStr(100-i," "),len(stats.Times))
 				time.Sleep(time.Millisecond * 100)
 			}
 		}()
@@ -61,12 +61,13 @@ func startClient(bodyChan chan *Body, waitGroup *sync.WaitGroup, numParallels in
 
 func run (bodyChan chan *Body,waitGroup *sync.WaitGroup,count *Count, totalCalls int, c Client){
 	defer waitGroup.Done()
+	startTime := time.Now()
 	for {
 		if count.add()>int64(totalCalls){
 			break
 		}
-		startTime := time.Now()
-		body := &Body{}
+		startTime = time.Now()
+		body := bodyPool.Get().(*Body)
 		RequestSize,ResponseSize,ok:=c.Call()
 		body.Error=!ok
 		body.RequestSize=RequestSize
