@@ -34,7 +34,7 @@ func Start(parallels int,totalCalls int, clients []Client)*StatsResult{
 					break
 				}
 				i:=int(count.load())*100/totalCalls
-				fmt.Fprintf(os.Stdout, "%d%% [%s] %d\r",i,getStr(i,"#") + getStr(100-i," "),len(stats.Times))
+				fmt.Fprintf(os.Stdout, "%d%% [%s]\r",i,getStr(i,"#") + getStr(100-i," "))
 				time.Sleep(time.Millisecond * 100)
 			}
 		}()
