@@ -58,7 +58,7 @@ type Stats struct {
 	totalCalls 			int
 	finish 				chan bool
 	bodyChan 			chan *Body
-	Conns				int
+	Clients				int
 	Parallels			int
 	Time				float64
 	TotalTime			float64
@@ -70,7 +70,7 @@ type Stats struct {
 }
 
 type StatsResult struct {
-	Conns						int
+	Clients						int
 	Parallels     				int
 	TotalCalls					int64
 	TotalTime					float64
@@ -103,12 +103,12 @@ type StatsResult struct {
 	ErrorsPercentile			float64
 }
 
-func newStats(bodyChan chan *Body,conns int,parallels int,totalCalls int)*Stats{
+func newStats(bodyChan chan *Body,clients int,parallels int,totalCalls int)*Stats{
 	s := &Stats{
 		finish:			make(chan bool,1),
 		totalCalls:		totalCalls,
 		bodyChan:		bodyChan,
-		Conns:			conns,
+		Clients:		clients,
 		Parallels:		parallels,
 		Times:			make([]int, totalCalls),
 	}
@@ -146,7 +146,7 @@ func (s *Stats)Result()*StatsResult{
 	total := float64(len(s.Times))
 	totalInt := int64(total)
 	var statsResult =&StatsResult{}
-	statsResult.Conns=s.Conns
+	statsResult.Clients=s.Clients
 	statsResult.Parallels=s.Parallels
 	statsResult.TotalCalls=totalInt
 	statsResult.TotalTime=s.Time/1E6
@@ -189,7 +189,7 @@ func (s *Stats)Result()*StatsResult{
 func (statsResult *StatsResult)Format()string{
 	format:=""
 	format+=fmt.Sprintln("Summary:")
-	format+=fmt.Sprintf("\tConns:\t%d\n", statsResult.Conns)
+	format+=fmt.Sprintf("\tClients:\t%d\n", statsResult.Clients)
 	format+=fmt.Sprintf("\tParallels:\t%d\n", statsResult.Parallels)
 	format+=fmt.Sprintf("\tTotal Calls:\t%d\n", statsResult.TotalCalls)
 	format+=fmt.Sprintf("\tTotal time:\t%.2fs\n", statsResult.TotalTime)
