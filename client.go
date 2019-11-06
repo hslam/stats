@@ -6,7 +6,7 @@ import (
 )
 
 type Client interface {
-	Call()(RequestSize int64,ResponseSize int64,ok bool)
+	Call()(RequestSize int64,ResponseSize int64,Ok bool)
 }
 
 func startClient(bodyChan chan *Body, waitGroup *sync.WaitGroup, numParallels int,count *Count,totalCalls int,c Client) {

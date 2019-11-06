@@ -15,20 +15,20 @@ func SetBar(bar bool)  {
 	Bar=bar
 }
 
-func StartPrint(parallels int,totalCalls int, clients []Client){
-	result:=Start(parallels,totalCalls,clients)
+func StartPrint(numParallels int,totalCalls int, clients []Client){
+	result:=Start(numParallels,totalCalls,clients)
 	fmt.Println(result.Format())
 }
 
-func Start(parallels int,totalCalls int, clients []Client)*StatsResult{
+func Start(numParallels int,totalCalls int, clients []Client)*StatsResult{
 	bodyChan := make(chan *Body, totalCalls)
 	startTime := time.Now()
 	wg := &sync.WaitGroup{}
-	conns:=len(clients)
-	s := newStats(bodyChan, conns, parallels,totalCalls)
+	numClients:=len(clients)
+	s := newStats(bodyChan, numClients, numParallels,totalCalls)
 	count:=&Count{v:0}
-	for i := 0; i < conns; i++ {
-		go startClient(bodyChan, wg, parallels, count, totalCalls, clients[i])
+	for i := 0; i < numClients; i++ {
+		go startClient(bodyChan, wg, numParallels, count, totalCalls, clients[i])
 		wg.Add(1)
 	}
 	var stopLog=false
@@ -103,13 +103,13 @@ type StatsResult struct {
 	ErrorsPercentile			float64
 }
 
-func newStats(bodyChan chan *Body,clients int,parallels int,totalCalls int)*Stats{
+func newStats(bodyChan chan *Body,numClients int,numParallels int,totalCalls int)*Stats{
 	s := &Stats{
 		finish:			make(chan bool,1),
 		totalCalls:		totalCalls,
 		bodyChan:		bodyChan,
-		Clients:		clients,
-		Parallels:		parallels,
+		Clients:		numClients,
+		Parallels:		numParallels,
 		Times:			make([]int, totalCalls),
 	}
 	go s.run()
@@ -190,8 +190,8 @@ func (statsResult *StatsResult)Format()string{
 	format:=""
 	format+=fmt.Sprintln("Summary:")
 	format+=fmt.Sprintf("\tClients:\t%d\n", statsResult.Clients)
-	format+=fmt.Sprintf("\tParallels:\t%d\n", statsResult.Parallels)
-	format+=fmt.Sprintf("\tTotal Calls:\t%d\n", statsResult.TotalCalls)
+	format+=fmt.Sprintf("\tParallel calls per client:\t%d\n", statsResult.Parallels)
+	format+=fmt.Sprintf("\tTotal calls:\t%d\n", statsResult.TotalCalls)
 	format+=fmt.Sprintf("\tTotal time:\t%.2fs\n", statsResult.TotalTime)
 	format+=fmt.Sprintf("\tRequests per second:\t%.2f\n", statsResult.RequestsPerSecond)
 	format+=fmt.Sprintf("\tFastest time for request:\t%.2fms\n", statsResult.FastestTimeForRequest)
@@ -222,7 +222,7 @@ func (statsResult *StatsResult)Format()string{
 		format+=fmt.Sprintf("\tResponse rate per second:\t%.2f Byte/s (%.2f MByte/s)\n\n", statsResult.ResponseRateBytePerSecond,statsResult.ResponseRateMBytePerSecond)
 	}
 	format+=fmt.Sprintln("Result:")
-	format+=fmt.Sprintf("\tResponseOk:\t%d (%.2f%%)\n", statsResult.ResponseOk, statsResult.ResponseOkPercentile)
+	format+=fmt.Sprintf("\tResponse ok:\t%d (%.2f%%)\n", statsResult.ResponseOk, statsResult.ResponseOkPercentile)
 	format+=fmt.Sprintf("\tErrors:\t%d (%.2f%%)\n", statsResult.Errors, statsResult.ErrorsPercentile)
 	return format
 }

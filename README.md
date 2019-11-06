@@ -44,40 +44,40 @@ func (c *Client)Call()(int64,int64,bool){
 ```
 Summary:
 	Clients:	100
-	Parallels:	32
-	Total Calls:	1000000
-	Total time:	0.78s
-	Requests per second:	1275476.04
+	Parallel calls per client:	32
+	Total calls:	1000000
+	Total time:	0.70s
+	Requests per second:	1426356.50
 	Fastest time for request:	0.00ms
-	Average time per request:	2.41ms
-	Slowest time for request:	30.80ms
+	Average time per request:	2.18ms
+	Slowest time for request:	17.98ms
 
 Time:
-	0.1%	time for request:	0.07ms
-	1%	time for request:	0.51ms
-	5%	time for request:	0.74ms
-	10%	time for request:	0.92ms
-	25%	time for request:	1.36ms
-	50%	time for request:	2.07ms
-	75%	time for request:	2.93ms
-	90%	time for request:	4.02ms
-	95%	time for request:	5.30ms
-	99%	time for request:	9.30ms
-	99.9%	time for request:	15.57ms
+	0.1%	time for request:	0.06ms
+	1%	time for request:	0.40ms
+	5%	time for request:	0.64ms
+	10%	time for request:	0.80ms
+	25%	time for request:	1.20ms
+	50%	time for request:	1.80ms
+	75%	time for request:	2.56ms
+	90%	time for request:	3.62ms
+	95%	time for request:	4.94ms
+	99%	time for request:	10.39ms
+	99.9%	time for request:	15.48ms
 
 Request:
 	Total request body sizes:	1000000000
 	Average body size per request:	1000.00 Byte
-	Request rate per second:	1275476039.54 Byte/s (1275.48 MByte/s)
+	Request rate per second:	1426356500.69 Byte/s (1426.36 MByte/s)
 
 Response:
-	Total response body sizes:	998972000
+	Total response body sizes:	998969000
 	Average body size per response:	998.97 Byte
-	Response rate per second:	1274164850.18 Byte/s (1274.16 MByte/s)
+	Response rate per second:	1424885927.14 Byte/s (1424.89 MByte/s)
 
 Result:
-	ResponseOk:	998972 (99.90%)
-	Errors:	1028 (0.10%)
+	Response ok:	998969 (99.90%)
+	Errors:	1031 (0.10%)
 ```
 
 ### Licence
