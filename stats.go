@@ -9,10 +9,10 @@ import (
 	"os"
 )
 
-var Log =true
+var Bar =true
 
-func SetLog(log bool)  {
-	Log=log
+func SetBar(bar bool)  {
+	Bar=bar
 }
 
 func StartPrint(parallels int,totalCalls int, clients []Client){
@@ -32,7 +32,7 @@ func Start(parallels int,totalCalls int, clients []Client)*StatsResult{
 		wg.Add(1)
 	}
 	var stopLog=false
-	if Log{
+	if Bar{
 		go func() {
 			for {
 				if len(bodyChan) >= totalCalls||stopLog{
@@ -47,7 +47,7 @@ func Start(parallels int,totalCalls int, clients []Client)*StatsResult{
 	wg.Wait()
 	s.SetTime(time.Now().Sub(startTime).Nanoseconds()/1E3)
 	stopLog=true
-	if Log{
+	if Bar{
 		fmt.Fprintf(os.Stdout, "%s\r",getStr(106," "))
 	}
 	<-s.finish
@@ -215,7 +215,6 @@ func (statsResult *StatsResult)Format()string{
 		format+=fmt.Sprintf("\tAverage body size per request:\t%.2f Byte\n", statsResult.AverageBodySizePerRequest)
 		format+=fmt.Sprintf("\tRequest rate per second:\t%.2f Byte/s (%.2f MByte/s)\n\n", statsResult.RequestRateBytePerSecond,statsResult.RequestRateMBytePerSecond)
 	}
-
 	if statsResult.TotalResponseBodySizes>0{
 		format+=fmt.Sprintln("Response:")
 		format+=fmt.Sprintf("\tTotal response body sizes:\t%d\n", statsResult.TotalResponseBodySizes)
