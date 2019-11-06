@@ -2,51 +2,11 @@ package stats
 
 import (
 	"sync"
-	"os"
 	"time"
-	"fmt"
 )
+
 type Client interface {
 	Call()(RequestSize int64,ResponseSize int64,ok bool)
-}
-
-func StartPrint(parallels int,totalCalls int, clients []Client){
-	result:=Start(parallels,totalCalls,clients)
-	fmt.Println(result.Format())
-}
-
-func Start(parallels int,totalCalls int, clients []Client)*StatsResult{
-	bodyChan := make(chan *Body, totalCalls)
-	startTime := time.Now()
-	wg := &sync.WaitGroup{}
-	conns:=len(clients)
-	stats := newStats(bodyChan, conns, parallels,totalCalls)
-	count:=&Count{v:0}
-	for i := 0; i < conns; i++ {
-		go startClient(bodyChan, wg, parallels, count, totalCalls, clients[i])
-		wg.Add(1)
-	}
-	var stopLog=false
-	if Log{
-		go func() {
-			for {
-				if len(bodyChan) >= totalCalls||stopLog{
-					break
-				}
-				i:=int(count.load())*100/totalCalls
-				fmt.Fprintf(os.Stdout, "%d%% [%s]\r",i,getStr(i,"#") + getStr(100-i," "))
-				time.Sleep(time.Millisecond * 100)
-			}
-		}()
-	}
-	wg.Wait()
-	stats.SetTime(time.Now().Sub(startTime).Nanoseconds()/1000)
-	stopLog=true
-	if Log{
-		fmt.Fprintf(os.Stdout, "%s\r",getStr(106," "))
-	}
-	<-stats.finish
-	return stats.Result()
 }
 
 func startClient(bodyChan chan *Body, waitGroup *sync.WaitGroup, numParallels int,count *Count,totalCalls int,c Client) {
@@ -72,18 +32,7 @@ func run (bodyChan chan *Body,waitGroup *sync.WaitGroup,count *Count, totalCalls
 		body.Error=!ok
 		body.RequestSize=RequestSize
 		body.ResponseSize=ResponseSize
-		body.Time = time.Now().Sub(startTime).Nanoseconds()/1000
+		body.Time = time.Now().Sub(startTime).Nanoseconds()/1E3
 		bodyChan <- body
 	}
-}
-
-
-func getStr(n int,char string) (s string) {
-	if n<1{
-		return
-	}
-	for i:=1;i<=n;i++{
-		s+=char
-	}
-	return
 }

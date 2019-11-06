@@ -3,9 +3,11 @@ package stats
 import (
 	"sync"
 )
+
 var (
 	bodyPool			*sync.Pool
 )
+
 func init() {
 	bodyPool= &sync.Pool{
 		New: func() interface{} {

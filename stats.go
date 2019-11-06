@@ -4,11 +4,54 @@ import (
 	"fmt"
 	"sort"
 	"math"
+	"sync"
+	"time"
+	"os"
 )
+
 var Log =true
 
 func SetLog(log bool)  {
 	Log=log
+}
+
+func StartPrint(parallels int,totalCalls int, clients []Client){
+	result:=Start(parallels,totalCalls,clients)
+	fmt.Println(result.Format())
+}
+
+func Start(parallels int,totalCalls int, clients []Client)*StatsResult{
+	bodyChan := make(chan *Body, totalCalls)
+	startTime := time.Now()
+	wg := &sync.WaitGroup{}
+	conns:=len(clients)
+	s := newStats(bodyChan, conns, parallels,totalCalls)
+	count:=&Count{v:0}
+	for i := 0; i < conns; i++ {
+		go startClient(bodyChan, wg, parallels, count, totalCalls, clients[i])
+		wg.Add(1)
+	}
+	var stopLog=false
+	if Log{
+		go func() {
+			for {
+				if len(bodyChan) >= totalCalls||stopLog{
+					break
+				}
+				i:=int(count.load())*1E2/totalCalls
+				fmt.Fprintf(os.Stdout, "%d%% [%s]\r",i,getBar(i))
+				time.Sleep(time.Millisecond * 1E2)
+			}
+		}()
+	}
+	wg.Wait()
+	s.SetTime(time.Now().Sub(startTime).Nanoseconds()/1E3)
+	stopLog=true
+	if Log{
+		fmt.Fprintf(os.Stdout, "%s\r",getStr(106," "))
+	}
+	<-s.finish
+	return s.Result()
 }
 
 type Stats struct {
@@ -27,13 +70,14 @@ type Stats struct {
 }
 
 type StatsResult struct {
-	Conns 					int
-	Parallels     			int
-	TotalCalls				int64
-	TotalTime				float64
-	RequestsPerSecond 		float64
+	Conns						int
+	Parallels     				int
+	TotalCalls					int64
+	TotalTime					float64
+	RequestsPerSecond 			float64
 	AverageTimePerRequest		float64
-	FastestTimeForRequest 	float64
+	FastestTimeForRequest 		float64
+	SlowestTimeForRequest 		float64
 	N001thThousandthTime		float64
 	N010thThousandthTime		float64
 	N050thThousandthTime		float64
@@ -44,24 +88,23 @@ type StatsResult struct {
 	N900thThousandthTime		float64
 	N950thThousandthTime		float64
 	N990thThousandthTime		float64
-	N999thThousandthTime	float64
-	SlowestTimeForRequest 	float64
-	TotalRequestBodySizes  int64
-	AverageBodySizePerRequest  float64
-	RequestRateBytePerSecond  float64
-	RequestRateMBytePerSecond  float64
-	TotalResponseBodySizes  int64
+	N999thThousandthTime		float64
+	TotalRequestBodySizes  		int64
+	AverageBodySizePerRequest  	float64
+	RequestRateBytePerSecond  	float64
+	RequestRateMBytePerSecond  	float64
+	TotalResponseBodySizes  	int64
 	AverageBodySizePerResponse  float64
-	ResponseRateBytePerSecond  float64
+	ResponseRateBytePerSecond  	float64
 	ResponseRateMBytePerSecond  float64
-	ResponseOk				int64
-	ResponseOkPercentile	float64
-	Errors      			int64
-	ErrorsPercentile		float64
+	ResponseOk					int64
+	ResponseOkPercentile		float64
+	Errors      				int64
+	ErrorsPercentile			float64
 }
 
 func newStats(bodyChan chan *Body,conns int,parallels int,totalCalls int)*Stats{
-	stats := &Stats{
+	s := &Stats{
 		finish:			make(chan bool,1),
 		totalCalls:		totalCalls,
 		bodyChan:		bodyChan,
@@ -69,74 +112,74 @@ func newStats(bodyChan chan *Body,conns int,parallels int,totalCalls int)*Stats{
 		Parallels:		parallels,
 		Times:			make([]int, totalCalls),
 	}
-	go stats.run()
-	return stats
+	go s.run()
+	return s
 }
 
-func (stats *Stats)SetTime(time int64){
-	stats.Time=float64(time)
+func (s *Stats)SetTime(time int64){
+	s.Time=float64(time)
 }
 
-func (stats *Stats)run(){
+func (s *Stats)run(){
 	i := 0
-	for body := range stats.bodyChan {
-		stats.Times[i] = int(body.Time)
+	for body := range s.bodyChan {
+		s.Times[i] = int(body.Time)
 		i++
-		stats.TotalTime += float64(body.Time)
-		stats.TotalRequestSize += body.RequestSize
-		stats.TotalResponseSize += body.ResponseSize
+		s.TotalTime += float64(body.Time)
+		s.TotalRequestSize += body.RequestSize
+		s.TotalResponseSize += body.ResponseSize
 		if body.Error {
-			stats.Errors++
+			s.Errors++
 		}else {
-			stats.ResponseOk++
+			s.ResponseOk++
 		}
 		bodyPool.Put(body)
-		if i==stats.totalCalls{
+		if i==s.totalCalls{
 			break
 		}
 	}
-	stats.finish<-true
+	s.finish<-true
 }
 
-func (stats *Stats)Result()*StatsResult{
-	sort.Ints(stats.Times)
-	total := float64(len(stats.Times))
+func (s *Stats)Result()*StatsResult{
+	sort.Ints(s.Times)
+	total := float64(len(s.Times))
 	totalInt := int64(total)
 	var statsResult =&StatsResult{}
-	statsResult.Conns=stats.Conns
-	statsResult.Parallels=stats.Parallels
+	statsResult.Conns=s.Conns
+	statsResult.Parallels=s.Parallels
 	statsResult.TotalCalls=totalInt
-	statsResult.TotalTime=stats.Time/1E6
-	statsResult.RequestsPerSecond=total/(stats.Time/1E6)
-	statsResult.AverageTimePerRequest=stats.TotalTime/total/1000
-	statsResult.FastestTimeForRequest=float64(stats.Times[0])/1000
-	statsResult.SlowestTimeForRequest=float64(stats.Times[totalInt-1])/1000
-	statsResult.N001thThousandthTime=float64(stats.Times[int(math.Ceil(total/1000*1))-1])/1000
-	statsResult.N010thThousandthTime=float64(stats.Times[int(math.Ceil(total/1000*10))-1])/1000
-	statsResult.N050thThousandthTime=float64(stats.Times[int(math.Ceil(total/1000*50))-1])/1000
-	statsResult.N100thThousandthTime=float64(stats.Times[int(math.Ceil(total/1000*100))-1])/1000
-	statsResult.N250thThousandthTime=float64(stats.Times[int(math.Ceil(total/1000*250))-1])/1000
-	statsResult.N500thThousandthTime=float64(stats.Times[int(math.Ceil(total/1000*500))-1])/1000
-	statsResult.N750thThousandthTime=float64(stats.Times[int(math.Ceil(total/1000*750))-1])/1000
-	statsResult.N900thThousandthTime=float64(stats.Times[int(math.Ceil(total/1000*900))-1])/1000
-	statsResult.N950thThousandthTime=float64(stats.Times[int(math.Ceil(total/1000*950))-1])/1000
-	statsResult.N990thThousandthTime=float64(stats.Times[int(math.Ceil(total/1000*990))-1])/1000
-	statsResult.N999thThousandthTime=float64(stats.Times[int(math.Ceil(total/1000*999))-1])/1000
-	statsResult.ResponseOk=stats.ResponseOk
-	statsResult.ResponseOkPercentile=float64(stats.ResponseOk)/total*1e2
-	statsResult.Errors=stats.Errors
-	statsResult.ErrorsPercentile=float64(stats.Errors)/total*1e2
-	if stats.TotalRequestSize>0{
-		statsResult.TotalRequestBodySizes=stats.TotalRequestSize
-		statsResult.AverageBodySizePerRequest=float64(stats.TotalRequestSize)/total
-		tr := float64(stats.TotalRequestSize) / (stats.Time / 1E6)
+	statsResult.TotalTime=s.Time/1E6
+	statsResult.RequestsPerSecond=total/(s.Time/1E6)
+	statsResult.AverageTimePerRequest=s.TotalTime/total/1E3
+	statsResult.FastestTimeForRequest=float64(s.Times[0])/1E3
+	statsResult.SlowestTimeForRequest=float64(s.Times[totalInt-1])/1E3
+	statsResult.N001thThousandthTime=float64(s.Times[int(math.Ceil(total/1E3*1))-1])/1E3
+	statsResult.N010thThousandthTime=float64(s.Times[int(math.Ceil(total/1E3*10))-1])/1E3
+	statsResult.N050thThousandthTime=float64(s.Times[int(math.Ceil(total/1E3*50))-1])/1E3
+	statsResult.N100thThousandthTime=float64(s.Times[int(math.Ceil(total/1E3*100))-1])/1E3
+	statsResult.N250thThousandthTime=float64(s.Times[int(math.Ceil(total/1E3*250))-1])/1E3
+	statsResult.N500thThousandthTime=float64(s.Times[int(math.Ceil(total/1E3*500))-1])/1E3
+	statsResult.N750thThousandthTime=float64(s.Times[int(math.Ceil(total/1E3*750))-1])/1E3
+	statsResult.N900thThousandthTime=float64(s.Times[int(math.Ceil(total/1E3*900))-1])/1E3
+	statsResult.N950thThousandthTime=float64(s.Times[int(math.Ceil(total/1E3*950))-1])/1E3
+	statsResult.N990thThousandthTime=float64(s.Times[int(math.Ceil(total/1E3*990))-1])/1E3
+	statsResult.N999thThousandthTime=float64(s.Times[int(math.Ceil(total/1E3*999))-1])/1E3
+	statsResult.ResponseOk=s.ResponseOk
+	statsResult.ResponseOkPercentile=float64(s.ResponseOk)/total*1E2
+	statsResult.Errors=s.Errors
+	statsResult.ErrorsPercentile=float64(s.Errors)/total*1E2
+	if s.TotalRequestSize>0{
+		statsResult.TotalRequestBodySizes=s.TotalRequestSize
+		statsResult.AverageBodySizePerRequest=float64(s.TotalRequestSize)/total
+		tr := float64(s.TotalRequestSize) / (s.Time / 1E6)
 		statsResult.RequestRateBytePerSecond=tr
 		statsResult.RequestRateMBytePerSecond=tr/1E6
 	}
-	if stats.TotalResponseSize>0{
-		statsResult.TotalResponseBodySizes=stats.TotalResponseSize
-		statsResult.AverageBodySizePerResponse=float64(stats.TotalResponseSize)/total
-		tr := float64(stats.TotalResponseSize) / (stats.Time / 1E6)
+	if s.TotalResponseSize>0{
+		statsResult.TotalResponseBodySizes=s.TotalResponseSize
+		statsResult.AverageBodySizePerResponse=float64(s.TotalResponseSize)/total
+		tr := float64(s.TotalResponseSize) / (s.Time / 1E6)
 		statsResult.ResponseRateBytePerSecond=tr
 		statsResult.ResponseRateMBytePerSecond=tr/1E6
 	}
