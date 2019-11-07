@@ -23,7 +23,7 @@ func run (bodyChan chan *Body,waitGroup *sync.WaitGroup,count *Count, totalCalls
 	defer waitGroup.Done()
 	startTime := time.Now()
 	for {
-		if count.add()>int64(totalCalls){
+		if count.add(1)>int64(totalCalls){
 			break
 		}
 		startTime = time.Now()
