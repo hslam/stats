@@ -47,37 +47,37 @@ Summary:
 	Parallel calls per client:	32
 	Total calls:	1000000
 	Total time:	0.70s
-	Requests per second:	1426356.50
+	Requests per second:	1427276.68
 	Fastest time for request:	0.00ms
-	Average time per request:	2.18ms
-	Slowest time for request:	17.98ms
+	Average time per request:	2.19ms
+	Slowest time for request:	16.67ms
 
 Time:
-	0.1%	time for request:	0.06ms
-	1%	time for request:	0.40ms
-	5%	time for request:	0.64ms
-	10%	time for request:	0.80ms
-	25%	time for request:	1.20ms
-	50%	time for request:	1.80ms
-	75%	time for request:	2.56ms
-	90%	time for request:	3.62ms
-	95%	time for request:	4.94ms
-	99%	time for request:	10.39ms
-	99.9%	time for request:	15.48ms
+	0.1%	time for request:	0.00ms
+	1%	time for request:	0.46ms
+	5%	time for request:	0.71ms
+	10%	time for request:	0.89ms
+	25%	time for request:	1.32ms
+	50%	time for request:	2.00ms
+	75%	time for request:	2.78ms
+	90%	time for request:	3.64ms
+	95%	time for request:	4.33ms
+	99%	time for request:	6.43ms
+	99.9%	time for request:	9.79ms
 
 Request:
 	Total request body sizes:	1000000000
 	Average body size per request:	1000.00 Byte
-	Request rate per second:	1426356500.69 Byte/s (1426.36 MByte/s)
+	Request rate per second:	1427276684.72 Byte/s (1427.28 MByte/s)
 
 Response:
-	Total response body sizes:	998969000
-	Average body size per response:	998.97 Byte
-	Response rate per second:	1424885927.14 Byte/s (1424.89 MByte/s)
+	Total response body sizes:	998982000
+	Average body size per response:	1000.00 Byte
+	Response rate per second:	1425823717.06 Byte/s (1425.82 MByte/s)
 
 Result:
-	Response ok:	998969 (99.90%)
-	Errors:	1031 (0.10%)
+	Response ok:	998982 (99.90%)
+	Errors:	1018 (0.10%)
 ```
 
 ### Licence

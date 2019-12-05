@@ -178,7 +178,7 @@ func (s *Stats)Result()*StatsResult{
 	}
 	if s.TotalResponseSize>0{
 		statsResult.TotalResponseBodySizes=s.TotalResponseSize
-		statsResult.AverageBodySizePerResponse=float64(s.TotalResponseSize)/total
+		statsResult.AverageBodySizePerResponse=float64(s.TotalResponseSize)/float64(s.ResponseOk)
 		tr := float64(s.TotalResponseSize) / (s.Time / 1E6)
 		statsResult.ResponseRateBytePerSecond=tr
 		statsResult.ResponseRateMBytePerSecond=tr/1E6
