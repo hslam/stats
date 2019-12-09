@@ -81,8 +81,8 @@ Result:
 ```
 
 ### Licence
-This package is licenced under a MIT licence (Copyright (c) 2019 Mort Huang)
+This package is licenced under a MIT licence (Copyright (c) 2019 Meng Huang)
 
 
 ### Authors
-stats was written by Mort Huang.
+stats was written by Meng Huang.
