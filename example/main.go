@@ -1,6 +1,6 @@
 package main
 import (
-	"hslam.com/git/x/stats"
+	"github.com/hslam/stats"
 	"time"
 	"math/rand"
 )

@@ -5,18 +5,18 @@ Stats is written in golang using for benchmark
 
 ### Install
 ```
-go get hslam.com/git/x/stats
+go get github.com/hslam/stats
 ```
 ### Import
 ```
-import "hslam.com/git/x/stats"
+import "github.com/hslam/stats"
 ```
 
 ### example
 ```
 package main
 import (
-	"hslam.com/git/x/stats"
+	"github.com/hslam/stats"
 	"time"
 	"math/rand"
 )
