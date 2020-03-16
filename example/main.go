@@ -12,8 +12,8 @@ func main() {
 		Clients = append(Clients, &Client{})
 	}
 	parallel := 32
-	total_calls := 1000000
-	stats.StartPrint(parallel, total_calls, Clients)
+	totalCalls := 1000000
+	stats.StartPrint(parallel, totalCalls, Clients)
 }
 
 //Client implements interface of client.
