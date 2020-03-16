@@ -14,8 +14,8 @@ func TestStats(t *testing.T) {
 	for i := 0; i < 1E2; i++ {
 		Clients = append(Clients, &client{})
 	}
-	parallel := 32
-	totalCalls := 1000000
+	parallel := 1
+	totalCalls := 100000
 	StartPrint(parallel, totalCalls, Clients)
 }
 
