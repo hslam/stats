@@ -40,12 +40,16 @@ func Start(numParallels int, totalCalls int, clients []Client) *Result {
 		wg.Add(1)
 	}
 	var stopLog = false
+	var mut sync.Mutex
 	if Bar {
 		go func() {
 			for {
+				mut.Lock()
 				if len(bodyChan) >= totalCalls || stopLog {
+					mut.Unlock()
 					break
 				}
+				mut.Unlock()
 				i := int(count.load()) * 1E2 / totalCalls
 				fmt.Fprintf(os.Stdout, "%d%% [%s]\r", i, getBar(i))
 				time.Sleep(time.Millisecond * 1E2)
@@ -54,7 +58,9 @@ func Start(numParallels int, totalCalls int, clients []Client) *Result {
 	}
 	wg.Wait()
 	s.setTime(time.Now().Sub(startTime).Nanoseconds() / 1E3)
+	mut.Lock()
 	stopLog = true
+	mut.Unlock()
 	if Bar {
 		fmt.Fprintf(os.Stdout, "%s\r", getStr(106, " "))
 	}
