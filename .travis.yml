@@ -7,7 +7,7 @@ install:
   - go get -t -v -d ./...
 script:
   - go test -v .
-  - go test -coverpkg=./ -coverprofile=coverage.data -timeout=5s ./
+  - go test -coverpkg=./ -coverprofile=coverage.data  -covermode=atomic
   - go tool cover -func=coverage.data -o coverage.txt
 after_success:
   - go build -o main -v ./example/main.go
