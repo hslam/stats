@@ -1,3 +1,6 @@
+// Copyright (c) 2019 Meng Huang (mhboy@outlook.com)
+// This package is licensed under a MIT license that can be found in the LICENSE file.
+
 package stats
 
 import (
@@ -5,21 +8,21 @@ import (
 )
 
 var (
-	bodyPool			*sync.Pool
+	bodyPool *sync.Pool
 )
 
 func init() {
-	bodyPool= &sync.Pool{
+	bodyPool = &sync.Pool{
 		New: func() interface{} {
 			return &Body{}
 		},
 	}
 }
 
+//Body defines the struct of response body.
 type Body struct {
-	RequestSize		int64
-	ResponseSize	int64
-	Time			int64
-	Error			bool
+	RequestSize  int64
+	ResponseSize int64
+	Time         int64
+	Error        bool
 }
-
