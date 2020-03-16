@@ -15,8 +15,8 @@ func TestStats(t *testing.T) {
 		Clients = append(Clients, &client{})
 	}
 	parallel := 32
-	total_calls := 1000000
-	StartPrint(parallel, total_calls, Clients)
+	totalCalls := 1000000
+	StartPrint(parallel, totalCalls, Clients)
 }
 
 type client struct {
