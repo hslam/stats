@@ -25,7 +25,7 @@ func startClient(bodyChan chan *Body, waitGroup *sync.WaitGroup, numParallels in
 
 func run(bodyChan chan *Body, waitGroup *sync.WaitGroup, count *Count, totalCalls int, c Client) {
 	defer waitGroup.Done()
-	startTime := time.Now()
+	var startTime time.Time
 	for {
 		if count.add(1) > int64(totalCalls) {
 			break
