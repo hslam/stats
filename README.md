@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.org/hslam/stats.svg?branch=master)](https://travis-ci.org/hslam/stats)
 [![codecov](https://codecov.io/gh/hslam/stats/branch/master/graph/badge.svg)](https://codecov.io/gh/hslam/stats)
 [![Go Report Card](https://goreportcard.com/badge/github.com/hslam/stats?v=7e100)](https://goreportcard.com/report/github.com/hslam/stats)
+[![GitHub release](https://img.shields.io/github/release/hslam/stats.svg)](https://github.com/hslam/stats/releases/latest)
 [![LICENSE](https://img.shields.io/github/license/hslam/stats.svg?style=flat-square)](https://github.com/hslam/stats/blob/master/LICENSE)
 
 Package stats implements benchmarking.
