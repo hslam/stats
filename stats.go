@@ -50,14 +50,14 @@ func Start(numParallels int, totalCalls int, clients []Client) *Result {
 					break
 				}
 				mut.Unlock()
-				i := int(count.load()) * 1E2 / totalCalls
+				i := int(count.load()) * 1e2 / totalCalls
 				fmt.Fprintf(os.Stdout, "%d%% [%s]\r", i, getBar(i))
-				time.Sleep(time.Millisecond * 1E2)
+				time.Sleep(time.Millisecond * 1e2)
 			}
 		}()
 	}
 	wg.Wait()
-	s.setTime(time.Now().Sub(startTime).Nanoseconds() / 1E3)
+	s.setTime(time.Now().Sub(startTime).Nanoseconds() / 1e3)
 	mut.Lock()
 	stopLog = true
 	mut.Unlock()
@@ -165,39 +165,39 @@ func (s *Stats) result() *Result {
 	statsResult.Clients = s.Clients
 	statsResult.Parallels = s.Parallels
 	statsResult.TotalCalls = totalInt
-	statsResult.TotalTime = s.Time / 1E6
-	statsResult.RequestsPerSecond = total / (s.Time / 1E6)
-	statsResult.AverageTimePerRequest = s.TotalTime / total / 1E3
-	statsResult.FastestTimeForRequest = float64(s.Times[0]) / 1E3
-	statsResult.SlowestTimeForRequest = float64(s.Times[totalInt-1]) / 1E3
-	statsResult.N001thThousandthTime = float64(s.Times[int(math.Ceil(total/1E3*1))-1]) / 1E3
-	statsResult.N010thThousandthTime = float64(s.Times[int(math.Ceil(total/1E3*10))-1]) / 1E3
-	statsResult.N050thThousandthTime = float64(s.Times[int(math.Ceil(total/1E3*50))-1]) / 1E3
-	statsResult.N100thThousandthTime = float64(s.Times[int(math.Ceil(total/1E3*100))-1]) / 1E3
-	statsResult.N250thThousandthTime = float64(s.Times[int(math.Ceil(total/1E3*250))-1]) / 1E3
-	statsResult.N500thThousandthTime = float64(s.Times[int(math.Ceil(total/1E3*500))-1]) / 1E3
-	statsResult.N750thThousandthTime = float64(s.Times[int(math.Ceil(total/1E3*750))-1]) / 1E3
-	statsResult.N900thThousandthTime = float64(s.Times[int(math.Ceil(total/1E3*900))-1]) / 1E3
-	statsResult.N950thThousandthTime = float64(s.Times[int(math.Ceil(total/1E3*950))-1]) / 1E3
-	statsResult.N990thThousandthTime = float64(s.Times[int(math.Ceil(total/1E3*990))-1]) / 1E3
-	statsResult.N999thThousandthTime = float64(s.Times[int(math.Ceil(total/1E3*999))-1]) / 1E3
+	statsResult.TotalTime = s.Time / 1e6
+	statsResult.RequestsPerSecond = total / (s.Time / 1e6)
+	statsResult.AverageTimePerRequest = s.TotalTime / total / 1e3
+	statsResult.FastestTimeForRequest = float64(s.Times[0]) / 1e3
+	statsResult.SlowestTimeForRequest = float64(s.Times[totalInt-1]) / 1e3
+	statsResult.N001thThousandthTime = float64(s.Times[int(math.Ceil(total/1e3*1))-1]) / 1e3
+	statsResult.N010thThousandthTime = float64(s.Times[int(math.Ceil(total/1e3*10))-1]) / 1e3
+	statsResult.N050thThousandthTime = float64(s.Times[int(math.Ceil(total/1e3*50))-1]) / 1e3
+	statsResult.N100thThousandthTime = float64(s.Times[int(math.Ceil(total/1e3*100))-1]) / 1e3
+	statsResult.N250thThousandthTime = float64(s.Times[int(math.Ceil(total/1e3*250))-1]) / 1e3
+	statsResult.N500thThousandthTime = float64(s.Times[int(math.Ceil(total/1e3*500))-1]) / 1e3
+	statsResult.N750thThousandthTime = float64(s.Times[int(math.Ceil(total/1e3*750))-1]) / 1e3
+	statsResult.N900thThousandthTime = float64(s.Times[int(math.Ceil(total/1e3*900))-1]) / 1e3
+	statsResult.N950thThousandthTime = float64(s.Times[int(math.Ceil(total/1e3*950))-1]) / 1e3
+	statsResult.N990thThousandthTime = float64(s.Times[int(math.Ceil(total/1e3*990))-1]) / 1e3
+	statsResult.N999thThousandthTime = float64(s.Times[int(math.Ceil(total/1e3*999))-1]) / 1e3
 	statsResult.ResponseOk = s.ResponseOk
-	statsResult.ResponseOkPercentile = float64(s.ResponseOk) / total * 1E2
+	statsResult.ResponseOkPercentile = float64(s.ResponseOk) / total * 1e2
 	statsResult.Errors = s.Errors
-	statsResult.ErrorsPercentile = float64(s.Errors) / total * 1E2
+	statsResult.ErrorsPercentile = float64(s.Errors) / total * 1e2
 	if s.TotalRequestSize > 0 {
 		statsResult.TotalRequestBodySizes = s.TotalRequestSize
 		statsResult.AverageBodySizePerRequest = float64(s.TotalRequestSize) / total
-		tr := float64(s.TotalRequestSize) / (s.Time / 1E6)
+		tr := float64(s.TotalRequestSize) / (s.Time / 1e6)
 		statsResult.RequestRateBytePerSecond = tr
-		statsResult.RequestRateMBytePerSecond = tr / 1E6
+		statsResult.RequestRateMBytePerSecond = tr / 1e6
 	}
 	if s.TotalResponseSize > 0 {
 		statsResult.TotalResponseBodySizes = s.TotalResponseSize
 		statsResult.AverageBodySizePerResponse = float64(s.TotalResponseSize) / float64(s.ResponseOk)
-		tr := float64(s.TotalResponseSize) / (s.Time / 1E6)
+		tr := float64(s.TotalResponseSize) / (s.Time / 1e6)
 		statsResult.ResponseRateBytePerSecond = tr
-		statsResult.ResponseRateMBytePerSecond = tr / 1E6
+		statsResult.ResponseRateMBytePerSecond = tr / 1e6
 	}
 	return statsResult
 }

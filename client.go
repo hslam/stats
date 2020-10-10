@@ -36,7 +36,7 @@ func run(bodyChan chan *Body, waitGroup *sync.WaitGroup, count *Count, totalCall
 		body.Error = !ok
 		body.RequestSize = RequestSize
 		body.ResponseSize = ResponseSize
-		body.Time = time.Now().Sub(startTime).Nanoseconds() / 1E3
+		body.Time = time.Now().Sub(startTime).Nanoseconds() / 1e3
 		bodyChan <- body
 	}
 }
