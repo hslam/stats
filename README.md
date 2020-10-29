@@ -6,7 +6,7 @@
 [![GitHub release](https://img.shields.io/github/release/hslam/stats.svg)](https://github.com/hslam/stats/releases/latest)
 [![LICENSE](https://img.shields.io/github/license/hslam/stats.svg?style=flat-square)](https://github.com/hslam/stats/blob/master/LICENSE)
 
-Package stats implements benchmarking.
+Package stats implements a generic benchmarking tool.
 
 ## Get started
 
@@ -19,7 +19,7 @@ go get github.com/hslam/stats
 import "github.com/hslam/stats"
 ```
 
-### example
+### Example
 ```
 package main
 
@@ -39,17 +39,15 @@ func main() {
 	stats.StartPrint(parallel, totalCalls, Clients)
 }
 
-//Client implements the stats.Client interface.
 type Client struct {
 }
 
-//Call returns RequestSize, ResponseSize, Ok.
 func (c *Client) Call() (int64, int64, bool) {
-	time.Sleep(time.Microsecond * time.Duration(rand.Intn(1000))) //mock task time
+	time.Sleep(time.Microsecond * time.Duration(rand.Intn(1000)))
 	if rand.Intn(1000) == 1 {
-		return 1e3, 0, false //mock error
+		return 1e3, 0, false
 	}
-	return 1e3, 1e3, true //mock success
+	return 1e3, 1e3, true
 }
 ```
 
@@ -97,5 +95,5 @@ Result:
 This package is licensed under a MIT license (Copyright (c) 2019 Meng Huang)
 
 
-### Authors
+### Author
 stats was written by Meng Huang.

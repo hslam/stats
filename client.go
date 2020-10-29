@@ -8,30 +8,31 @@ import (
 	"time"
 )
 
-//Client is the interface of client.
+// Client represents a client.
 type Client interface {
+	// Call returns a request size, a response size and its ok status.
 	Call() (RequestSize int64, ResponseSize int64, Ok bool)
 }
 
-func startClient(bodyChan chan *Body, waitGroup *sync.WaitGroup, numParallels int, count *Count, totalCalls int, c Client) {
+func startClient(bodyChan chan *body, waitGroup *sync.WaitGroup, numParallels int, cnt *count, totalCalls int, c Client) {
 	defer waitGroup.Done()
 	wg := &sync.WaitGroup{}
 	for i := 0; i < numParallels; i++ {
-		go run(bodyChan, wg, count, totalCalls, c)
+		go run(bodyChan, wg, cnt, totalCalls, c)
 		wg.Add(1)
 	}
 	wg.Wait()
 }
 
-func run(bodyChan chan *Body, waitGroup *sync.WaitGroup, count *Count, totalCalls int, c Client) {
+func run(bodyChan chan *body, waitGroup *sync.WaitGroup, cnt *count, totalCalls int, c Client) {
 	defer waitGroup.Done()
 	var startTime time.Time
 	for {
-		if count.add(1) > int64(totalCalls) {
+		if cnt.add(1) > int64(totalCalls) {
 			break
 		}
 		startTime = time.Now()
-		body := bodyPool.Get().(*Body)
+		body := bodyPool.Get().(*body)
 		RequestSize, ResponseSize, ok := c.Call()
 		body.Error = !ok
 		body.RequestSize = RequestSize
