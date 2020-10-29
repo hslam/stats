@@ -16,15 +16,13 @@ func main() {
 	stats.StartPrint(parallel, totalCalls, Clients)
 }
 
-//Client implements the stats.Client interface.
 type Client struct {
 }
 
-//Call returns RequestSize, ResponseSize, Ok.
 func (c *Client) Call() (int64, int64, bool) {
-	time.Sleep(time.Microsecond * time.Duration(rand.Intn(1000))) //mock task time
+	time.Sleep(time.Microsecond * time.Duration(rand.Intn(1000)))
 	if rand.Intn(1000) == 1 {
-		return 1e3, 0, false //mock error
+		return 1e3, 0, false
 	}
-	return 1e3, 1e3, true //mock success
+	return 1e3, 1e3, true
 }

@@ -8,19 +8,14 @@ import (
 )
 
 var (
-	bodyPool *sync.Pool
-)
-
-func init() {
-	bodyPool = &sync.Pool{
+	bodyPool = sync.Pool{
 		New: func() interface{} {
-			return &Body{}
+			return &body{}
 		},
 	}
-}
+)
 
-//Body defines the struct of response body.
-type Body struct {
+type body struct {
 	RequestSize  int64
 	ResponseSize int64
 	Time         int64

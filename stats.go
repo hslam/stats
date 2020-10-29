@@ -1,7 +1,7 @@
 // Copyright (c) 2019 Meng Huang (mhboy@outlook.com)
 // This package is licensed under a MIT license that can be found in the LICENSE file.
 
-// Package stats implements benchmarking.
+// Package stats implements a generic benchmarking tool.
 package stats
 
 import (
@@ -13,30 +13,30 @@ import (
 	"time"
 )
 
-//Bar is true
+// Bar is true.
 var Bar = true
 
-//SetBar enables bar
+// SetBar sets bar.
 func SetBar(bar bool) {
 	Bar = bar
 }
 
-//StartPrint prints the result of stats.
+// StartPrint prints the stats result.
 func StartPrint(numParallels int, totalCalls int, clients []Client) {
 	result := Start(numParallels, totalCalls, clients)
 	fmt.Println(result.Format())
 }
 
-//Start returns the result of stats.
+// Start returns the stats result.
 func Start(numParallels int, totalCalls int, clients []Client) *Result {
-	bodyChan := make(chan *Body, totalCalls)
+	bodyChan := make(chan *body, totalCalls)
 	startTime := time.Now()
 	wg := &sync.WaitGroup{}
 	numClients := len(clients)
 	s := newStats(bodyChan, numClients, numParallels, totalCalls)
-	count := &Count{v: 0}
+	cnt := &count{v: 0}
 	for i := 0; i < numClients; i++ {
-		go startClient(bodyChan, wg, numParallels, count, totalCalls, clients[i])
+		go startClient(bodyChan, wg, numParallels, cnt, totalCalls, clients[i])
 		wg.Add(1)
 	}
 	var stopLog = false
@@ -50,7 +50,7 @@ func Start(numParallels int, totalCalls int, clients []Client) *Result {
 					break
 				}
 				mut.Unlock()
-				i := int(count.load()) * 1e2 / totalCalls
+				i := int(cnt.load()) * 1e2 / totalCalls
 				fmt.Fprintf(os.Stdout, "%d%% [%s]\r", i, getBar(i))
 				time.Sleep(time.Millisecond * 1e2)
 			}
@@ -68,11 +68,10 @@ func Start(numParallels int, totalCalls int, clients []Client) *Result {
 	return s.result()
 }
 
-//Stats defines the struct of stats.
-type Stats struct {
+type stats struct {
 	totalCalls        int
 	finish            chan bool
-	bodyChan          chan *Body
+	bodyChan          chan *body
 	Clients           int
 	Parallels         int
 	Time              float64
@@ -84,7 +83,7 @@ type Stats struct {
 	Errors            int64
 }
 
-//Result defines the struct of stats result.
+// Result is a stats result.
 type Result struct {
 	Clients                    int
 	Parallels                  int
@@ -119,8 +118,8 @@ type Result struct {
 	ErrorsPercentile           float64
 }
 
-func newStats(bodyChan chan *Body, numClients int, numParallels int, totalCalls int) *Stats {
-	s := &Stats{
+func newStats(bodyChan chan *body, numClients int, numParallels int, totalCalls int) *stats {
+	s := &stats{
 		finish:     make(chan bool, 1),
 		totalCalls: totalCalls,
 		bodyChan:   bodyChan,
@@ -132,11 +131,11 @@ func newStats(bodyChan chan *Body, numClients int, numParallels int, totalCalls 
 	return s
 }
 
-func (s *Stats) setTime(time int64) {
+func (s *stats) setTime(time int64) {
 	s.Time = float64(time)
 }
 
-func (s *Stats) run() {
+func (s *stats) run() {
 	i := 0
 	for body := range s.bodyChan {
 		s.Times[i] = int(body.Time)
@@ -157,7 +156,7 @@ func (s *Stats) run() {
 	s.finish <- true
 }
 
-func (s *Stats) result() *Result {
+func (s *stats) result() *Result {
 	sort.Ints(s.Times)
 	total := float64(len(s.Times))
 	totalInt := int64(total)
@@ -202,7 +201,7 @@ func (s *Stats) result() *Result {
 	return statsResult
 }
 
-//Format returns the formatted string.
+// Format returns the formatted string.
 func (statsResult *Result) Format() string {
 	format := ""
 	format += fmt.Sprintln("Summary:")
