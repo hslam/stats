@@ -20,7 +20,7 @@ import "github.com/hslam/stats"
 ```
 
 ### Example
-```
+```go
 package main
 
 import (
