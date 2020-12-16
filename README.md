@@ -1,6 +1,6 @@
 # stats
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/hslam/stats)](https://pkg.go.dev/github.com/hslam/stats)
-[![Build Status](https://travis-ci.org/hslam/stats.svg?branch=master)](https://travis-ci.org/hslam/stats)
+[![Build Status](https://api.travis-ci.com/hslam/stats.svg?branch=master)](https://travis-ci.com/hslam/stats)
 [![codecov](https://codecov.io/gh/hslam/stats/branch/master/graph/badge.svg)](https://codecov.io/gh/hslam/stats)
 [![Go Report Card](https://goreportcard.com/badge/github.com/hslam/stats?v=7e100)](https://goreportcard.com/report/github.com/hslam/stats)
 [![GitHub release](https://img.shields.io/github/release/hslam/stats.svg)](https://github.com/hslam/stats/releases/latest)
