@@ -10,6 +10,7 @@ import (
 	"os"
 	"sort"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -29,49 +30,90 @@ func StartPrint(numParallels int, totalCalls int, clients []Client) {
 
 // Start returns the stats result.
 func Start(numParallels int, totalCalls int, clients []Client) *Result {
-	bodyChan := make(chan *body, totalCalls)
-	startTime := time.Now()
-	wg := &sync.WaitGroup{}
 	numClients := len(clients)
+	bodyChan := make(chan []*body, int(float64(numParallels*numClients)*1.25))
+	bodyChans := make([]chan *body, numParallels*numClients)
+	for i := 0; i < numParallels*numClients; i++ {
+		ch := make(chan *body, int(float64(totalCalls)*1.5)/(numParallels*numClients))
+		bodyChans[i] = ch
+	}
+	cwg := &sync.WaitGroup{}
 	s := newStats(bodyChan, numClients, numParallels, totalCalls)
 	cnt := &count{v: 0}
+	start := make(chan struct{})
 	for i := 0; i < numClients; i++ {
-		go startClient(bodyChan, wg, numParallels, cnt, totalCalls, clients[i])
-		wg.Add(1)
+		go startClient(bodyChans[i*numParallels:(i+1)*numParallels], start, cwg, numParallels, cnt, totalCalls, clients[i])
+		cwg.Add(1)
 	}
-	var stopLog = false
-	var mut sync.Mutex
+	wg := &sync.WaitGroup{}
+	var stopLog int32
 	if Bar {
+		wg.Add(1)
 		go func() {
+			defer wg.Done()
+			<-start
 			for {
-				mut.Lock()
-				if len(bodyChan) >= totalCalls || stopLog {
-					mut.Unlock()
+				if atomic.LoadInt32(&stopLog) > 0 {
 					break
 				}
-				mut.Unlock()
 				i := int(cnt.load()) * 1e2 / totalCalls
 				fmt.Fprintf(os.Stdout, "%d%% [%s]\r", i, getBar(i))
 				time.Sleep(time.Millisecond * 1e2)
 			}
 		}()
 	}
-	wg.Wait()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		<-start
+		for {
+			for i := 0; i < numParallels*numClients; i++ {
+				ch := bodyChans[i]
+				select {
+				case b, ok := <-ch:
+					if !ok {
+						return
+					}
+					length := len(ch)
+					bodies := make([]*body, 0, length+1)
+					bodies = append(bodies, b)
+					for j := 0; j < length; j++ {
+						b := <-ch
+						bodies = append(bodies, b)
+					}
+					bodyChan <- bodies
+				default:
+				}
+			}
+			sum := 0
+			for i := 0; i < numParallels*numClients; i++ {
+				sum += len(bodyChans[i])
+			}
+			if sum == 0 {
+				time.Sleep(time.Millisecond)
+			}
+		}
+	}()
+	startTime := time.Now()
+	close(start)
+	cwg.Wait()
 	s.setTime(time.Now().Sub(startTime).Nanoseconds())
-	mut.Lock()
-	stopLog = true
-	mut.Unlock()
+	atomic.StoreInt32(&stopLog, 1)
 	if Bar {
 		fmt.Fprintf(os.Stdout, "%s\r", getStr(106, " "))
 	}
 	<-s.finish
+	for i := 0; i < numParallels*numClients; i++ {
+		close(bodyChans[i])
+	}
+	wg.Wait()
 	return s.result()
 }
 
 type stats struct {
 	totalCalls        int
 	finish            chan bool
-	bodyChan          chan *body
+	bodyChan          chan []*body
 	Clients           int
 	Parallels         int
 	Time              float64
@@ -124,7 +166,7 @@ type Result struct {
 	ErrorsPercentile           float64
 }
 
-func newStats(bodyChan chan *body, numClients int, numParallels int, totalCalls int) *stats {
+func newStats(bodyChan chan []*body, numClients int, numParallels int, totalCalls int) *stats {
 	s := &stats{
 		finish:     make(chan bool, 1),
 		totalCalls: totalCalls,
@@ -143,18 +185,21 @@ func (s *stats) setTime(time int64) {
 
 func (s *stats) run() {
 	i := 0
-	for body := range s.bodyChan {
-		s.Times[i] = int(body.Time)
-		i++
-		s.TotalTime += float64(body.Time)
-		s.TotalRequestSize += body.RequestSize
-		if body.Error {
-			s.Errors++
-		} else {
-			s.TotalResponseSize += body.ResponseSize
-			s.ResponseOk++
+	for bodies := range s.bodyChan {
+		for idx := range bodies {
+			body := bodies[idx]
+			s.Times[i] = int(body.Time)
+			i++
+			s.TotalTime += float64(body.Time)
+			s.TotalRequestSize += body.RequestSize
+			if body.Error {
+				s.Errors++
+			} else {
+				s.TotalResponseSize += body.ResponseSize
+				s.ResponseOk++
+			}
+			bodyPool.Put(body)
 		}
-		bodyPool.Put(body)
 		if i == s.totalCalls {
 			break
 		}

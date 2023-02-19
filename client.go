@@ -14,19 +14,20 @@ type Client interface {
 	Call() (RequestSize int64, ResponseSize int64, Ok bool)
 }
 
-func startClient(bodyChan chan *body, waitGroup *sync.WaitGroup, numParallels int, cnt *count, totalCalls int, c Client) {
+func startClient(bodyChans []chan *body, start <-chan struct{}, waitGroup *sync.WaitGroup, numParallels int, cnt *count, totalCalls int, c Client) {
 	defer waitGroup.Done()
 	wg := &sync.WaitGroup{}
 	for i := 0; i < numParallels; i++ {
-		go run(bodyChan, wg, cnt, totalCalls, c)
+		go run(bodyChans[i], start, wg, cnt, totalCalls, c)
 		wg.Add(1)
 	}
 	wg.Wait()
 }
 
-func run(bodyChan chan *body, waitGroup *sync.WaitGroup, cnt *count, totalCalls int, c Client) {
+func run(bodyChan chan *body, start <-chan struct{}, waitGroup *sync.WaitGroup, cnt *count, totalCalls int, c Client) {
 	defer waitGroup.Done()
 	var startTime time.Time
+	<-start
 	for {
 		if cnt.add(1) > int64(totalCalls) {
 			break
